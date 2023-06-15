@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: 123
+      POSTGRES_USER: qq224
+      POSTGRES_DB: ts10
+    container_name: db_exapp
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env-dev
+  app:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    restart: always
+    env_file:
+      - .env-dev
+    container_name: exapp
+    command: sh -c "alembic upgrade head && gunicorn api:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000"
+    depends_on:
+      - db
